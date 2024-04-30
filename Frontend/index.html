@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style/style.css">
+        <title>Chatbot</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    </head>
+    <body>
+        <div class="chatbot">
+            <header>
+                <h2>chatbot</h2>
+            </header>
+            <ul class="chatbox" id="chatbox">
+                <li class="chat incoming">
+                    <span class="material-symbols-outlined">smart_toy</span>
+                    <p> Hola <br> Como te encuentras hoy</p>
+                </li>
+                <li class="chat outgoing">
+                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sequi, consectetur. </p>
+                </li>
+                <li class="chat incoming">
+                    <span class="material-symbols-outlined">smart_toy</span>
+                    <p> Hola <br> Como te encuentras hoy</p>
+                </li>
+                <li class="chat outgoing">
+                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sequi, consectetur. </p>
+                </li>
+            </ul>
+            <div class="chat-input"><textarea id="Info" placeholder="Enter a message..."></textarea>
+            <span id="send-btn" onclick=Send() class="material-symbols-outlined">send</span></div>
+        </div>
+    <script src="js/mains.js"></script>
+    </body>
+</html>
