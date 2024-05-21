@@ -9,4 +9,4 @@ btn.addEventListener("click",()=>{
     parrafo.innerHTML = Info;
     element.appendChild(parrafo);
     chat.appendChild(element);
-    })
+})
