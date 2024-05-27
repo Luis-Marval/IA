@@ -8,11 +8,10 @@ class DBConect extends DBData{
     })
   }
 
-  async readmany(table) {
-    let consult = "SELECT * From ??";
+  async conector(consult,box){
     try{
-      const result =await new promise(() => {
-        this.conection.query(consult,table, (error, result) => {
+      const result = await new Promise ((resolve, reject) => {
+        this.conection.query(consult,box,(error, result) => {
           if (error) {
             reject(error);
           }
@@ -25,22 +24,30 @@ class DBConect extends DBData{
       process.exit(1)
     }
   }
+
+  async readmany(table) {
+    let consult = "SELECT * From ??";
+    const box = [table]
+    const result = await this.conector(consult,box)
+    return result
+  }
   async readsingle(table,where){
-    const consult= "SELECT * From ?? where cedula = ?"
+    const consult = "SELECT * From ?? where email = ?"
+    const box = [table, where]
+    const result = await this.conector(consult,box)
+    return result
+  }
+
+  async findOut(table,data){
+    const result = await this.readmany(table)
     try {
-      // se crea una promesa para realizar la consulta sql
-      const result = await new Promise((resolve, reject) => {
-        this.conection.query(consult, [table, where], (error, result) => {
-          //si hay un error se realizada el reject,en caso comtrario el resolve
-          if (error) {
-            reject(error);
-          }
-            resolve(result);
-        });
-      });
-      return result;
+      for (const key of result) {
+        if( key["email"] === data[0] ) throw new Error("Email ya existente")
+        if( key["cedula"] === data[1] ) throw new Error("Cedula ya existente")
+      }
+      return false
     } catch (error) {
-      console.log(error);
+      console.log(error)
       process.exit(1)
     }
   }
@@ -59,26 +66,26 @@ class DBConect extends DBData{
     }
   }*/
   
-  insert(index,data,table) {
+  async insert(index,data,table) {
     let consult = "INSERT INTO ?? (??) VALUES (?)";
-    this.conection.query(consult,[table,index,data],function (error,result,fields) {
-      console.log(error)
-      console.log("insert "+ result.affectedRows +" rows")
-    })
+    const box = [table,index,data]
+    const result = await this.conector(consult,box)
+    console.log(result.affectedRows)
   }
 
-  delete(table,where){
-    let consult="Delete from ?? where Cedula = ?"
-    try{
-      if(where == null){ throw new Error("No se permite realziar esta accion") }
-      this.conection.query(consult,[table,where],function (error,result,fields) {
-        if(error) throw new Error(error) 
-        console.log(result.affectedRows)
-      })
-    }catch(error){
-        console.log(error);
-        process.exit(1)
-    }
+  async update(table,index,data,Id){
+    const consult = "Update ?? SET ?? = ? where Id = ?"
+    const box = [table,index,data,Id]
+    const result = await this.conector(consult,box)
+    console.log(result.affectedRows)
+  }
+
+  async delete(table,where){
+    if(where == null || where === "") throw new Error("No se permite realziar esta accion") 
+    let consult="Delete from ?? where email = ?"
+    const box = [table,where]
+    const result = await this.conector(consult,box)
+    console.log(result)
   }
 }
 

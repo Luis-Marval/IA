@@ -1,20 +1,23 @@
+const e = require("express")
 const DBConect = require("./database")
 const crypto = require('bcrypt')
 //En la variable table se guarda el nombre de la tabla de usuarios
 const table = process.env.TABLE_USERS
 class User extends DBConect{
-  constructor(cedula,email,password,name,lastname){
+  #password
+  constructor(email,password,cedula = null,name = null,lastname = null,status = false){
     super()
     this.cedula = cedula;
     this.email = email;
     this.name = name;
     this.lastname = lastname;
-    this.password = password;
+    this.#password= password;
+    this.status = status;
   }
-  async create(){
+  async register(){
+    const result = await super.findOut(table,[this.email,this.cedula])
     //passwordHash se almacena el resultado final de la funcion sethash
     const passwordHash = await this.sethash(this.password)
-    console.log(passwordHash)
     //el index son los nombres de las tablas a crear
     let index = [
       "cedula","email","password","name","lastname"
@@ -27,20 +30,53 @@ class User extends DBConect{
       this.name,
       this.lastname,
     ] 
-    console.log(`${data} + ${index}`)
     super.insert(index,data,table)
   }
   async login(){
-    let userData = await super.readsingle(table,this.cedula);
-    const compare = await crypto.compare(this.password,userData[0]["password"])
-    console.log(compare)
+    try {
+      let userData = await super.readsingle(table,this.email);
+      const compare = await crypto.compare(this.password,userData[0]["password"])
 
+      if(compare === false )throw new Error("Contraseña Incorrecta")
+
+      this.status = true;
+      this.name = userData[0]["name"]
+      this.lastname = userData[0]["lastname"]
+      this.cedula = userData[0]["cedula"]
+
+    } catch (error) {
+      console.log(error)
+    }
   }
+  async changeProf(index,data){
+    try{
+      if(!this.status) throw new Error("Debes iniciar sesion")
+      const result = await super.readsingle(table,[this.email])
+      for (const key in index) {
+        super.update(table,index[key],data[key],result[0]["Id"])
+      }
+    } catch(error){
+      console.log("type",error)
+    }
+  }
+
+/*   async logout(){
+  
+  } */
+
   async sethash(password){
       const hash = await crypto.hash(password,8);
       return hash;
   }
 }
-const usuario = new User(28723454,"paco@gmail.com","16789","Luis","Marval");
-/* usuario.create(); */
-usuario.login();
+
+(
+  async () => {
+    const usuario = new User("Luisw@gmail.com","wdawdaw");
+    await usuario.login();
+    await usuario.changeProf(["name","lastname"],["setata",".|."])
+    console.log(usuario)
+    delete usuario;
+    console.log(usuario)
+  }
+)()
